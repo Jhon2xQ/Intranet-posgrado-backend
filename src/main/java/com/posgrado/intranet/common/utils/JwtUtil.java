@@ -25,7 +25,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; 
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -66,18 +66,27 @@ public class JwtUtil {
         .signWith(getSecretKey())
         .compact();
   }
-  
+
+  public String generatePassResetToken(String username) {
+    return Jwts.builder()
+        .subject(username)
+        .issuedAt(Date.from(Instant.now()))
+        .expiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
+        .signWith(getSecretKey())
+        .compact();
+  }
+
   public Claims getClaimsFromToken(String token) {
     return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
   }
 
   public Claims getClaimsFromExpiredToken(String token) {
     try {
-        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
+      return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
     } catch (ExpiredJwtException e) {
-        return e.getClaims();
+      return e.getClaims();
     }
-}
+  }
 
   public String getUsernameFromToken(String token) {
     return getClaimsFromToken(token).getSubject();
@@ -138,7 +147,7 @@ public class JwtUtil {
       return false;
     }
   }
-  
+
   public boolean isRefreshToken(String token) {
     try {
       String type = getClaimsFromToken(token).get("type", String.class);

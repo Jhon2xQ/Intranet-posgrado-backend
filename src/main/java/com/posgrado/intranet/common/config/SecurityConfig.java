@@ -62,13 +62,13 @@ public class SecurityConfig {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
-      
+
       Map<String, Object> errorResponse = new HashMap<>();
       errorResponse.put("success", false);
       errorResponse.put("errorCode", "UNAUTHORIZED");
       errorResponse.put("message", "Acceso no autorizado - Token valido requerido");
       errorResponse.put("timestamp", System.currentTimeMillis());
-      
+
       ObjectMapper objectMapper = new ObjectMapper();
       response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     };
@@ -84,6 +84,8 @@ public class SecurityConfig {
             .requestMatchers("/public/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
+            .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
+            .requestMatchers(HttpMethod.PUT, "/auth/update-forgot-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/health").permitAll()
 
             /* rutas protegidas */
@@ -99,7 +101,7 @@ public class SecurityConfig {
     http.headers(headers -> headers.frameOptions(FrameOptionsConfig::disable));
     return http.build();
   }
-  
+
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
@@ -112,4 +114,3 @@ public class SecurityConfig {
     return source;
   }
 }
-
