@@ -23,3 +23,11 @@ app.cookie.same-site=${COOKIE_SAMESITE:None}
 app.cookie.access-max-age=${COOKIE_ACCESS_MAX_AGE:300}
 app.cookie.refresh-max-age=${COOKIE_REFRESH_MAX_AGE:900}
 app.cookie.path=${COOKIE_PATH:/auth/refresh}
+
+#MAIL
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true

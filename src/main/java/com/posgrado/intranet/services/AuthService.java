@@ -1,5 +1,7 @@
 package com.posgrado.intranet.services;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +17,9 @@ import com.posgrado.intranet.common.utils.JwtUtil;
 import com.posgrado.intranet.dtos.JwtResponse;
 import com.posgrado.intranet.dtos.LoginRequest;
 import com.posgrado.intranet.dtos.RegisterRequest;
+import com.posgrado.intranet.entities.TbResidentadoPasswordReset;
 import com.posgrado.intranet.entities.TbResidentadoUsuario;
+import com.posgrado.intranet.repositories.ResidentadoPasswordResetRepository;
 import com.posgrado.intranet.repositories.ResidentadoUsuarioRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
+  private final ResidentadoPasswordResetRepository passwordResetRepository;
   private final ResidentadoUsuarioRepository usuarioRepository;
   private final AuthenticationManager authenticationManager;
   private final CustomUserDetailsService userDetailsService;
@@ -39,8 +44,7 @@ public class AuthService {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
               loginRequest.getUsuario(),
-              loginRequest.getContrasenia())
-      );
+              loginRequest.getContrasenia()));
       CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
       String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
       String jti = jwtUtil.getJtiFromToken(refreshToken);
@@ -51,7 +55,7 @@ public class AuthService {
       throw new BadCredentialsException("Credenciales invalidas");
     }
   }
-  
+
   @Transactional
   public TbResidentadoUsuario register(RegisterRequest registerRequest) {
     if (usuarioRepository.existsByUsuario(registerRequest.getUsuario())) {
@@ -63,7 +67,26 @@ public class AuthService {
         .build();
     return usuarioRepository.save(usuario);
   }
-  
+
+  @Transactional
+  public void updateForgotPassword(String token, String newPassword) {
+    if (!jwtUtil.validateToken(token)) {
+      throw new BadCredentialsException("Token no valido o expirado");
+    }
+    TbResidentadoPasswordReset passwordReset = passwordResetRepository.findByToken(token)
+        .orElseThrow(() -> new RuntimeException("token no encontrado"));
+    if (passwordReset.isUsado() || passwordReset.estaExpirado()) {
+      throw new RuntimeException("El token ya esta usado");
+    }
+    passwordReset.marcarComoUsado();
+    passwordResetRepository.save(passwordReset);
+    String username = jwtUtil.getUsernameFromToken(token);
+    TbResidentadoUsuario usuario = usuarioRepository.findById(username)
+        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    usuario.setContrasenia(passwordEncoder.encode(newPassword));
+    usuarioRepository.save(usuario);
+  }
+
   @Transactional
   public void updatePassword(String username, String newPassword) {
     TbResidentadoUsuario usuario = usuarioRepository.findById(username)
@@ -71,7 +94,7 @@ public class AuthService {
     usuario.setContrasenia(passwordEncoder.encode(newPassword));
     usuarioRepository.save(usuario);
   }
-  
+
   @Transactional
   public JwtResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
     String accessToken = jwtUtil.getAccessTokenFromRequest(request);
@@ -93,7 +116,7 @@ public class AuthService {
     cookieUtil.createRefreshTokenCookie(response, newRefreshToken);
     return new JwtResponse(newJwt, userDetails.getUsername(), userDetails.getPrimeraSesion());
   }
-  
+
   public void logout(HttpServletResponse response) {
     cookieUtil.clearTokenCookies(response);
   }
