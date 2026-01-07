@@ -11,5 +11,5 @@ public class CursoDesaprobadoRes {
   private String codigo;
   private String nombres;
   private String programa;
-  private float monto;
+  private Float monto;
 }

@@ -35,5 +35,5 @@ public class TbEspecialidad implements Serializable {
   private String descripcion;
 
   @Column(name = "costo_cursodes")
-  private float costoCursoDes;
+  private Float costoCursoDes;
 }
