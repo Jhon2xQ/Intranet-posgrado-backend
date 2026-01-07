@@ -82,6 +82,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
             .requestMatchers(HttpMethod.PUT, "/auth/update-forgot-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/health").permitAll()
+            .requestMatchers(HttpMethod.POST, "/recaudacion/cursodesaprobado").permitAll()
 
             /* rutas protegidas */
             .requestMatchers("/estudiante/**").hasRole("ESTUDIANTE")

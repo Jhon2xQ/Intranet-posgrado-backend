@@ -19,9 +19,9 @@ import lombok.Setter;
 @Setter
 
 @Table(name = "tbEspecialidad", schema = "Academico")
-public class TbEspecialidad implements Serializable{
+public class TbEspecialidad implements Serializable {
 
-  @Serial 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Id
@@ -33,4 +33,7 @@ public class TbEspecialidad implements Serializable{
 
   @Column(name = "descripcion")
   private String descripcion;
+
+  @Column(name = "costo_cursodes")
+  private float costoCursoDes;
 }
