@@ -21,6 +21,9 @@ public class RecaudacionService {
     TbPersona persona = baseService.getPersona(alumno);
     TbCarrera carrera = baseService.getCarrera(alumnoCa.getCarrera());
     TbEspecialidad especialidad = baseService.getEspecialidad(alumnoCa.getCarrera(), alumnoCa.getEspecialidad());
+    if (especialidad.getCostoCursoDes()==null) {
+      throw new RuntimeException("El programa académico no tiene definido el costo de curso desaprobado");
+    }
     CursoDesaprobadoRes cursoResponse = new CursoDesaprobadoRes();
     cursoResponse.setCodigo(alumno);
     cursoResponse

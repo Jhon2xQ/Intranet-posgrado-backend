@@ -25,9 +25,9 @@ public class RecaudacionController {
       @Valid @RequestBody CursoDesaprobado cursoDesDto) {
     try {
       CursoDesaprobadoRes pagoRes = recaudacionService.getPagoCursoDesaprobado(cursoDesDto.getCodigo());
-      return ResponseEntity.ok(ApiResponse.success("Alumno encontrado satisfactoriamente", pagoRes));
+      return ResponseEntity.ok(ApiResponse.success("Costo curso desaprobado encontrado satisfactoriamente", pagoRes));
     } catch (Exception e) {
-      return ResponseEntity.status(404).body(ApiResponse.error("No se pudo obtener pago: " + e.getMessage()));
+      return ResponseEntity.status(404).body(ApiResponse.error("No se pudo obtener costo: " + e.getMessage()));
     }
   }
 }
